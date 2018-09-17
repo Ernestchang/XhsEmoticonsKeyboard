@@ -19,7 +19,6 @@ import com.xhsemoticonskeyboard.R;
 import com.xhsemoticonskeyboard.common.adapter.emoticonadapter.BigEmoticonsAdapter;
 import com.xhsemoticonskeyboard.common.adapter.emoticonadapter.BigEmoticonsAndTitleAdapter;
 import com.xhsemoticonskeyboard.common.adapter.emoticonadapter.TextEmoticonsAdapter;
-import com.xhsemoticonskeyboard.common.filter.EmojiFilter;
 import com.xhsemoticonskeyboard.common.filter.XhsFilter;
 import com.xhsemoticonskeyboard.common.utils.FileUtils;
 import com.xhsemoticonskeyboard.common.utils.ParseDataUtils;
@@ -49,8 +48,8 @@ import sj.keyboard.widget.EmoticonsEditText;
 public class SimpleCommonUtils {
 
     public static void initEmoticonsEditText(EmoticonsEditText etContent) {
-        etContent.addEmoticonFilter(new EmojiFilter());
-        etContent.addEmoticonFilter(new XhsFilter());
+//        etContent.addEmoticonFilter(new EmojiFilter());
+//        etContent.addEmoticonFilter(new XhsFilter());
     }
 
     public static EmoticonClickListener getCommonEmoticonClickListener(final EditText editText) {

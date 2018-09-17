@@ -39,7 +39,7 @@ import sj.qqkeyboard.DefQqEmoticons;
 public class QqUtils extends SimpleCommonUtils {
 
     public static void initEmoticonsEditText(EmoticonsEditText etContent) {
-        etContent.addEmoticonFilter(new QqFilter());
+//        etContent.addEmoticonFilter(new QqFilter());
     }
 
     public static EmoticonClickListener getCommonEmoticonClickListener(final EditText editText) {

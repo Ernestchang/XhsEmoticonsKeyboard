@@ -1,95 +1,95 @@
+/*
+ * Copyright 2014 Hieu Rocker
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package sj.keyboard.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.support.v7.widget.AppCompatEditText;
+import android.text.style.DynamicDrawableSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.widget.EditText;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.keyboard.view.R;
 
-import sj.keyboard.interfaces.EmoticonFilter;
+import sj.keyboard.utils.EmojiconHandler;
 
-public class EmoticonsEditText extends EditText {
-
-    private List<EmoticonFilter> mFilterList;
+/**
+ * @author Hieu Rocker (rockerhieu@gmail.com).
+ */
+public class EmoticonsEditText extends AppCompatEditText {
+    private int mEmojiconSize;
+    private int mEmojiconAlignment;
+    private int mEmojiconTextSize;
+    private boolean mUseSystemDefault = false;
 
     public EmoticonsEditText(Context context) {
-        this(context, null);
+        super(context);
+        mEmojiconSize = (int) getTextSize();
+        mEmojiconTextSize = (int) getTextSize();
     }
 
     public EmoticonsEditText(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        init(attrs);
     }
 
     public EmoticonsEditText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        init(attrs);
+    }
+
+    private void init(AttributeSet attrs) {
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.Emojicon);
+        mEmojiconSize = (int) a.getDimension(R.styleable.Emojicon_emojiconSize, getTextSize());
+        mEmojiconAlignment = a.getInt(R.styleable.Emojicon_emojiconAlignment, DynamicDrawableSpan.ALIGN_BASELINE);
+        mUseSystemDefault = a.getBoolean(R.styleable.Emojicon_emojiconUseSystemDefault, false);
+        a.recycle();
+        mEmojiconTextSize = (int) getTextSize();
+        setText(getText());
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        try {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            setText(getText().toString());
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
+    protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
+        updateText();
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if(oldh > 0 && onSizeChangedListener != null){
-            onSizeChangedListener.onSizeChanged(w, h, oldw, oldh);
-        }
+    /**
+     * Set the size of emojicon in pixels.
+     */
+    public void setEmojiconSize(int pixels) {
+        mEmojiconSize = pixels;
+
+        updateText();
     }
 
-    @Override
-    public void setGravity(int gravity) {
-        try {
-            super.setGravity(gravity);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            setText(getText().toString());
-            super.setGravity(gravity);
-        }
+    private void updateText() {
+        EmojiconHandler.addEmojis(getContext(), getText(), mEmojiconSize, mEmojiconAlignment, mEmojiconTextSize, mUseSystemDefault);
     }
 
-    @Override
-    public void setText(CharSequence text, BufferType type) {
-        try {
-            super.setText(text, type);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            setText(text.toString());
-        }
+    /**
+     * Set whether to use system default emojicon
+     */
+    public void setUseSystemDefault(boolean useSystemDefault) {
+        mUseSystemDefault = useSystemDefault;
     }
 
-    @Override
-    protected final void onTextChanged(CharSequence arg0, int start, int lengthBefore, int after) {
-        super.onTextChanged(arg0, start, lengthBefore, after);
-        if(mFilterList == null){
-            return;
-        }
-        for(EmoticonFilter emoticonFilter : mFilterList) {
-            emoticonFilter.filter(this, arg0, start, lengthBefore, after);
-        }
-    }
-
-    public void addEmoticonFilter(EmoticonFilter emoticonFilter){
-        if(mFilterList == null){
-            mFilterList = new ArrayList<>();
-        }
-        mFilterList.add(emoticonFilter);
-    }
-
-    public void removedEmoticonFilter(EmoticonFilter emoticonFilter){
-        if(mFilterList != null && mFilterList.contains(emoticonFilter)){
-            mFilterList.remove(emoticonFilter);
-        }
-    }
 
     @Override
     public boolean dispatchKeyEventPreIme(KeyEvent event) {
-        if(onBackKeyClickListener != null){
+        if (onBackKeyClickListener != null) {
             onBackKeyClickListener.onBackKeyClick();
         }
         return super.dispatchKeyEventPreIme(event);
@@ -99,19 +99,31 @@ public class EmoticonsEditText extends EditText {
         void onBackKeyClick();
     }
 
-    OnBackKeyClickListener onBackKeyClickListener;
+    EmoticonsEditText.OnBackKeyClickListener onBackKeyClickListener;
 
-    public void setOnBackKeyClickListener(OnBackKeyClickListener i) {
+    public void setOnBackKeyClickListener(EmoticonsEditText.OnBackKeyClickListener i) {
         onBackKeyClickListener = i;
     }
+
+
+
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if(oldh > 0 && onSizeChangedListener != null){
+            onSizeChangedListener.onSizeChanged(w, h, oldw, oldh);
+        }
+    }
+
 
     public interface OnSizeChangedListener {
         void onSizeChanged(int w, int h, int oldw, int oldh);
     }
 
-    OnSizeChangedListener onSizeChangedListener;
+    EmoticonsEditText.OnSizeChangedListener onSizeChangedListener;
 
-    public void setOnSizeChangedListener(OnSizeChangedListener i) {
+    public void setOnSizeChangedListener(EmoticonsEditText.OnSizeChangedListener i) {
         onSizeChangedListener = i;
     }
 
